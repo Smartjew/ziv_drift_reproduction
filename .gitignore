@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+cleanup_backup_*/
+output/
+external/
+data/
+*.mat
+*.npy
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Keep final diagnostics, but exclude intermediate packaging/audit reports from GitHub.
+outputs/reports/*.md

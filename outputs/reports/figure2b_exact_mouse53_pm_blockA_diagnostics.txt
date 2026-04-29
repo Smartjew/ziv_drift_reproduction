@@ -1,0 +1,92 @@
+Figure 2B exact forensic reproduction diagnostics
+
+source_matlab_script = C:\ziv_drift_workspace\visual_drift-main\visual_drift-main\scripts\visual_drift_analysis.m
+matlab_source_lines:
+756: nat_movie = 1; % natural movie 1
+757: area = 4; % area PM
+758: mouse = 53; % mouse #53
+759: 
+760: % current_mouse - subset binned neuronal activiy during first 30 movie repeats (block A)
+761: % for the example mouse (size of 72 units x 30 time bins x 30 movie repeats)
+762: current_mouse = neuropixels_population_vectors{mouse,area,nat_movie}(:,:,1:30);
+767: for repeat1 = 1:30 % loop over movie repeats
+768:     for repeat2 = 1:30
+769:         current_pv = corr(current_mouse(:,:,repeat1),current_mouse(:,:,repeat2)); % calculate PV corr between a time bins of a pair of movie repeats (30 by 30 in size)
+770:         mean_current_movie_pv_corr(repeat1,repeat2) = mean(diag(current_pv),'omitnan'); % average across corresponding time bins (diagonal of the matrix)
+774: main_diag_ind = boolean(eye(size(mean_current_movie_pv_corr,1))); % indices of main diagonal
+775: mean_current_movie_pv_corr(main_diag_ind) = NaN; % convert main diagonal into NaNs
+776: mean_current_movie_pv_corr(main_diag_ind) = max(mean_current_movie_pv_corr(:)); % replace main diagonal with maximal value
+
+neuropixels_dir = C:\ziv_drift_workspace\visual_drift-main\visual_drift-main\data\neuropixels
+matlab_mouse_index = 53
+python_mouse_index = 52
+resolved_file = session_831882777.mat
+session_path = C:\ziv_drift_workspace\visual_drift-main\visual_drift-main\data\neuropixels\session_831882777.mat
+sorted_file_count = 58
+
+target_parameters:
+nat_movie_matlab = 1
+nat_movie_index_python = 0
+area_matlab = 4
+area_index_python = 3
+block = A
+block_index_python = 0
+frames_per_repeat = 900
+n_repeats = 30
+n_time_bins = 30
+frames_per_bin = 30
+
+required_variables:
+informative_rater_mat_shape = (2, 12)
+mean_running_speed_repeats_shape = (1, 2)
+cell_num_shape = (2, 12)
+
+activity:
+shape = (72, 27000, 2)
+dtype = uint8
+min = 0
+max = 10
+nan_count = 0
+finite_count = 3888000
+
+population_vectors:
+explicit_shape = (72, 30, 60)
+current_mouse_shape = (72, 30, 30)
+debug_current_mouse_path = C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\debug\figure2b_current_mouse_mouse53_pm_blockA.npy
+explicit_vs_vectorized_max_abs_diff = 0.0
+
+figure2b_matrix_before_plot_diagonal_replacement:
+shape = (30, 30)
+diagonal_min = 1.0
+diagonal_max = 1.0
+off_diagonal_min = 0.7278433665781925
+off_diagonal_max = 0.9084744737360044
+off_diagonal_mean = 0.8518733229077378
+off_diagonal_median = 0.8566631290348384
+symmetry_max_abs_error = 0.0
+nan_count = 0
+lag1 = 0.8790726661765185
+lag2 = 0.8754479932128488
+lag5 = 0.8670373514020138
+lag10 = 0.8559255492816314
+lag20 = 0.8280860417055965
+lag29 = 0.7622767623745836
+lag1_minus_lag29 = 0.11679590380193483
+
+plot_matrix_after_diagonal_replacement:
+diagonal_value = 0.9084744737360044
+plot_matrix_csv = C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2b_exact_mouse53_pm_blockA_plot_matrix.csv
+
+outputs:
+figure = C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\figures\figure2b_exact_mouse53_pm_blockA.png
+matrix_csv = C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2b_exact_mouse53_pm_blockA_matrix.csv
+diagnostics = C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\reports\figure2b_exact_mouse53_pm_blockA_diagnostics.txt
+
+final_source_confirmation:
+session = session_831882777.mat
+stimulus = Natural Movie 1
+area = VISpm / PM
+block = A
+repeats = 1-30
+units = 72
+time_bins = 30

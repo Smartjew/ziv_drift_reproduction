@@ -1,0 +1,13 @@
+[project]
+name = "ziv-drift-reproduction"
+version = "0.1.0"
+description = "Focused reproduction of key results from Representational drift in the mouse visual cortex"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "h5py",
+    "pymatreader",
+    "pytest",
+]

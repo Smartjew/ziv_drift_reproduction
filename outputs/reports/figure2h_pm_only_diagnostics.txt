@@ -1,0 +1,34 @@
+Figure 2H PM-only Ensemble rate correlation diagnostics
+
+confirmation = This is not Figure 2E PV correlation; repeat activity is collapsed to one ensemble-rate vector per repeat before corr().
+source_neuropixels_dir = C:\ziv_drift_workspace\visual_drift-main\visual_drift-main\data\neuropixels
+valid_mice_source_table = C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2e_pm_only_valid_mice.csv
+total_neuropixels_mat_files_inspected = not_reconstructed_used_figure2e_valid_mice_table
+valid_mice_count = 16
+included_session_ids = 767871931, 771160300, 771990200, 778240327, 778998620, 779839471, 786091066, 794812542, 816200189, 819186360, 821695405, 831882777, 839068429, 839557629, 840012044, 847657808
+
+inclusion_criteria = Natural Movie 1 Functional Connectivity sessions, PM/VISpm activity shape (n_units, 27000, 2), n_units >= 15
+activity_shape_requirement = (n_units, 27000, 2)
+n_units_threshold = 15
+lags_used = 1..29
+lag0_included = False
+self_correlations_included = False
+mouse_by_lag_row_count = 464
+summary_row_count = 29
+min_n_mice_across_lags = 16
+max_n_mice_across_lags = 16
+
+lag1 mean = 0.9670183110848614, sem = 0.004803482544286741, n_mice = 16
+lag5 mean = 0.9449953343143915, sem = 0.007432598251201143, n_mice = 16
+lag10 mean = 0.9381958680411799, sem = 0.0073952766732096765, n_mice = 16
+lag20 mean = 0.9209784254864615, sem = 0.010669738614034332, n_mice = 16
+lag29 mean = 0.897484619910573, sem = 0.013022182793376741, n_mice = 16
+lag1_minus_lag29 = 0.06953369117428831
+lag1_greater_than_lag29 = True
+friedman_statistic = 293.03965517241386
+friedman_pvalue = 5.883820169426991e-46
+
+figure_path = C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\figures\figure2h_pm_only_ensemble_rate_across_mice.png
+valid_mice_csv = C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2h_pm_only_valid_mice.csv
+mouse_by_lag_csv = C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2h_pm_only_mouse_by_lag.csv
+summary_by_lag_csv = C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2h_pm_only_summary_by_lag.csv

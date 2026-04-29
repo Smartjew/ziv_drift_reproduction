@@ -1,0 +1,17 @@
+filename,session_id,n_units_pm,activity_shape,included,exclusion_reason,source_valid_mice_table
+session_767871931.mat,767871931,64,"(64, 27000, 2)",True,,C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2e_pm_only_valid_mice.csv
+session_771160300.mat,771160300,58,"(58, 27000, 2)",True,,C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2e_pm_only_valid_mice.csv
+session_771990200.mat,771990200,37,"(37, 27000, 2)",True,,C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2e_pm_only_valid_mice.csv
+session_778240327.mat,778240327,68,"(68, 27000, 2)",True,,C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2e_pm_only_valid_mice.csv
+session_778998620.mat,778998620,45,"(45, 27000, 2)",True,,C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2e_pm_only_valid_mice.csv
+session_779839471.mat,779839471,84,"(84, 27000, 2)",True,,C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2e_pm_only_valid_mice.csv
+session_786091066.mat,786091066,65,"(65, 27000, 2)",True,,C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2e_pm_only_valid_mice.csv
+session_794812542.mat,794812542,65,"(65, 27000, 2)",True,,C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2e_pm_only_valid_mice.csv
+session_816200189.mat,816200189,76,"(76, 27000, 2)",True,,C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2e_pm_only_valid_mice.csv
+session_819186360.mat,819186360,20,"(20, 27000, 2)",True,,C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2e_pm_only_valid_mice.csv
+session_821695405.mat,821695405,59,"(59, 27000, 2)",True,,C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2e_pm_only_valid_mice.csv
+session_831882777.mat,831882777,72,"(72, 27000, 2)",True,,C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2e_pm_only_valid_mice.csv
+session_839068429.mat,839068429,60,"(60, 27000, 2)",True,,C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2e_pm_only_valid_mice.csv
+session_839557629.mat,839557629,38,"(38, 27000, 2)",True,,C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2e_pm_only_valid_mice.csv
+session_840012044.mat,840012044,53,"(53, 27000, 2)",True,,C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2e_pm_only_valid_mice.csv
+session_847657808.mat,847657808,55,"(55, 27000, 2)",True,,C:\ziv_drift_workspace\ziv_drift_reproduction\outputs\tables\figure2e_pm_only_valid_mice.csv
