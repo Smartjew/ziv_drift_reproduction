@@ -58,7 +58,7 @@ Each final analysis also saved a diagnostic report under `outputs/reports`. The 
 
 Figure 2B compares all 30 movie repeats with all other repeats for the representative PM mouse. The matrix is a repeat-by-repeat PV correlation matrix. Higher values close to the diagonal indicate that nearby repeats are more similar than repeats separated by a longer elapsed interval.
 
-The diagonal of the plotted heatmap was adjusted only for visualization, following the original MATLAB figure logic. The saved scientific matrix keeps the original diagonal values. This single matrix shows the structure of the example session, but by itself it should not be interpreted as an across-mice result.
+The diagonal of the plotted heatmap was adjusted only for visualization, following the original figure logic. The saved scientific matrix keeps the original diagonal values. This single matrix shows the structure of the example session, but by itself it should not be interpreted as an across-mice result.
 
 ### 6.2 Figure 2C - Single-mouse PV correlation over elapsed repeats
 
@@ -68,12 +68,12 @@ Figure 2C collapses the Figure 2B matrix by elapsed repeat lag. Each gray point 
 
 The exact lag means from the reproduced Figure 2C table were:
 
-- lag 1: 0.8790726661765185
-- lag 5: 0.8670373514020138
-- lag 10: 0.8559255492816314
-- lag 20: 0.8280860417055965
-- lag 29: 0.7622767623745836
-- lag 1 minus lag 29: 0.116795903801935
+- lag 1: 0.87907
+- lag 5: 0.86703
+- lag 10: 0.85592
+- lag 20: 0.82808
+- lag 29: 0.76227
+- lag 1 minus lag 29: 0.11679
 
 The curve decreases from lag 1 to lag 29. This reproduces the single-animal example pattern: repeats that are close together in time have more similar population responses than repeats that are farther apart.
 
@@ -85,14 +85,14 @@ Figure 2E PM-only extends the Figure 2C PV correlation logic across valid PM mic
 
 The exact PM-only values were:
 
-- lag 1: 0.7776326345431588 +/- 0.02124169903333209
-- lag 5: 0.7555063676005271 +/- 0.023062537721002217
-- lag 10: 0.7467836749041057 +/- 0.022496488820529986
-- lag 20: 0.7327397050120855 +/- 0.02114492856990438
-- lag 29: 0.7075688320105272 +/- 0.021177235138526037
-- lag 1 minus lag 29: 0.0700638025326316
+- lag 1: 0.77763 +/- 0.021
+- lag 5: 0.7555 +/- 0.023
+- lag 10: 0.74678 +/- 0.022
+- lag 20: 0.73273 +/- 0.021
+- lag 29: 0.70756 +/- 0.0211
+- lag 1 minus lag 29: 0.07
 
-The diagnostic Friedman p-value was 2.0493202774895647e-37. This PM-only result supports short-timescale representational drift in area PM. It should be interpreted as a scoped across-mice reproduction, not as a reproduction of the full all-area Figure 2E panel from the paper.
+The diagnostic Friedman p-value was 2.049e-37. This PM-only result supports short-timescale representational drift in area PM. It should be interpreted as a scoped across-mice reproduction, not as a reproduction of the full all-area Figure 2E panel from the paper.
 
 ### 6.4 Figure 2H PM-only - Ensemble rate correlation across mice
 
@@ -102,20 +102,20 @@ Figure 2H PM-only asks whether overall activity-rate patterns also become less s
 
 The exact PM-only ensemble rate values were:
 
-- lag 1: 0.9670183110848614 +/- 0.004803482544286741
-- lag 5: 0.9449953343143915 +/- 0.007432598251201143
-- lag 10: 0.9381958680411799 +/- 0.0073952766732096765
-- lag 20: 0.9209784254864615 +/- 0.010669738614034332
-- lag 29: 0.897484619910573 +/- 0.013022182793376741
-- lag 1 minus lag 29: 0.0695336911742883
+- lag 1: 0.96701
+- lag 5: 0.9449 
+- lag 10: 0.93819
+- lag 20: 0.92097
+- lag 29: 0.89748 +/- 0.013
+- lag 1 minus lag 29: 0.06953
 
-The diagnostic Friedman statistic was 293.03965517241386, with p-value 5.883820169426991e-46. The curve decreases over elapsed repeats, suggesting that activity-rate changes contribute to the PV drift. However, this does not fully separate rate changes from tuning changes, because Figure 2I tuning-curve correlation was not reproduced in this project.
+The diagnostic Friedman statistic was 293.03965, with p-value 5.88e-46. The curve decreases over elapsed repeats, suggesting that activity-rate changes contribute to the PV drift. However, this does not fully separate rate changes from tuning changes, because Figure 2I tuning-curve correlation was not reproduced in this project.
 
 ## Comparison with the original paper
 
-The Figure 2B and Figure 2C reproductions follow the same computational definition as the original MATLAB code for the representative PM mouse. The selected session, area, stimulus, block, and repeat structure were matched to the original example. The PV correlation was computed by correlating time-bin population vectors and averaging the matching-time-bin diagonal, rather than by averaging each repeat before correlation.
+The Figure 2B and Figure 2C reproductions follow the same computational definition as the original figures for the representative PM mouse. The selected session, area, stimulus, block, and repeat structure were matched to the original example. The PV correlation was computed by correlating time-bin population vectors and averaging the matching-time-bin diagonal, rather than by averaging each repeat before correlation.
 
-For Figure 2E and Figure 2H, this project reproduced the same analysis logic but only for area PM / VISpm. The original paper shows curves for multiple visual areas. This project focused on PM because it made the analysis feasible, easier to audit, and directly connected to the representative mouse example.
+For Figure 2E and Figure 2H, this project reproduced the same analysis logic but only for area PM . The original paper shows curves for multiple visual areas. This project focused on PM because it made the analysis feasible, easier to audit, and directly connected to the representative mouse example.
 
 The qualitative trend is consistent with the paper: correlations decline as the elapsed repeat interval increases. This appears in the single-mouse PV analysis, the PM-only across-mice PV analysis, and the PM-only ensemble rate analysis.
 
