@@ -12,6 +12,3 @@ data/
 Thumbs.db
 .idea/
 .vscode/
-
-# Keep final diagnostics, but exclude intermediate packaging/audit reports from GitHub.
-outputs/reports/*.md

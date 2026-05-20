@@ -18,13 +18,13 @@ Figure 2B and Figure 2C are single-mouse example analyses. Figure 2E and Figure 
 
 Data source: official processed data from the Ziv lab `visual_drift` repository.
 
-Expected local Neuropixels data path:
+Local Neuropixels data path used by the scripts:
 
 ```text
 C:\ziv_drift_workspace\visual_drift-main\visual_drift-main\data\neuropixels
 ```
 
-Main MATLAB variable:
+Main processed data variable:
 
 ```text
 informative_rater_mat
@@ -45,64 +45,73 @@ src\analysis\           Final reproduction scripts
 tests\                  Final artifact tests
 outputs\figures\        Final output figures
 outputs\tables\         Final output tables
-outputs\reports\        Diagnostics and packaging reports
 ```
 
 ## Final Scripts
 
-- `src\analysis\figure2b_exact_mouse53_pm_blockA.py`: reproduces the exact single-mouse Figure 2B PM block A heatmap.
-- `src\analysis\reproduce_figure2c_exact.py`: reproduces the exact single-mouse Figure 2C lag collapse from the Figure 2B matrix.
+- `src\analysis\figure2b_exact_mouse53_pm_blockA.py`: reproduces the single-mouse Figure 2B PM block A heatmap.
+- `src\analysis\reproduce_figure2c_exact.py`: reproduces the single-mouse Figure 2C lag collapse from the Figure 2B matrix.
 - `src\analysis\reproduce_figure2e_pm_only.py`: reproduces PM-only Figure 2E PV correlation across valid Neuropixels mice.
 - `src\analysis\reproduce_figure2h_pm_only.py`: reproduces PM-only Figure 2H ensemble rate correlation across valid Neuropixels mice.
 
 ## How To Run
 
-Run commands from:
+Run commands from the project root:
 
 ```powershell
 cd C:\ziv_drift_workspace\ziv_drift_reproduction
 ```
 
+Create a fresh Python environment and install the project dependencies:
+
+```powershell
+py -3.11 -m venv .venv
+& '.\.venv\Scripts\python.exe' -m pip install --upgrade pip
+& '.\.venv\Scripts\python.exe' -m pip install -e '.[dev]'
+```
+
+If `py -3.11` is not available, use any Python executable that satisfies `requires-python = ">=3.11"` in `pyproject.toml`.
+
 Lightweight artifact check:
 
 ```powershell
-& 'C:\ziv_drift_workspace\ziv_drift_reproduction\.venv\Scripts\python.exe' 'C:\ziv_drift_workspace\ziv_drift_reproduction\main.py'
+& '.\.venv\Scripts\python.exe' '.\main.py' --check
 ```
 
 Tests:
 
 ```powershell
-& 'C:\ziv_drift_workspace\ziv_drift_reproduction\.venv\Scripts\python.exe' -m pytest
+& '.\.venv\Scripts\python.exe' -m pytest
 ```
 
 Reproduce Figure 2B:
 
 ```powershell
-& 'C:\ziv_drift_workspace\ziv_drift_reproduction\.venv\Scripts\python.exe' 'C:\ziv_drift_workspace\ziv_drift_reproduction\src\analysis\figure2b_exact_mouse53_pm_blockA.py'
+& '.\.venv\Scripts\python.exe' '.\src\analysis\figure2b_exact_mouse53_pm_blockA.py'
 ```
 
 Reproduce Figure 2C:
 
 ```powershell
-& 'C:\ziv_drift_workspace\ziv_drift_reproduction\.venv\Scripts\python.exe' 'C:\ziv_drift_workspace\ziv_drift_reproduction\src\analysis\reproduce_figure2c_exact.py'
+& '.\.venv\Scripts\python.exe' '.\src\analysis\reproduce_figure2c_exact.py'
 ```
 
 Reproduce Figure 2E PM-only:
 
 ```powershell
-& 'C:\ziv_drift_workspace\ziv_drift_reproduction\.venv\Scripts\python.exe' 'C:\ziv_drift_workspace\ziv_drift_reproduction\src\analysis\reproduce_figure2e_pm_only.py'
+& '.\.venv\Scripts\python.exe' '.\src\analysis\reproduce_figure2e_pm_only.py'
 ```
 
 Reproduce Figure 2H PM-only:
 
 ```powershell
-& 'C:\ziv_drift_workspace\ziv_drift_reproduction\.venv\Scripts\python.exe' 'C:\ziv_drift_workspace\ziv_drift_reproduction\src\analysis\reproduce_figure2h_pm_only.py'
+& '.\.venv\Scripts\python.exe' '.\src\analysis\reproduce_figure2h_pm_only.py'
 ```
 
 Optional regeneration:
 
 ```powershell
-& 'C:\ziv_drift_workspace\ziv_drift_reproduction\.venv\Scripts\python.exe' 'C:\ziv_drift_workspace\ziv_drift_reproduction\main.py' --run
+& '.\.venv\Scripts\python.exe' '.\main.py' --run
 ```
 
 The `--run` option runs all four final scripts in order. It is not needed for a lightweight check.
@@ -142,12 +151,6 @@ The pytest suite validates:
 - valid mice consistency between Figure 2E and Figure 2H
 - legacy outputs are absent from final output folders
 - `main.py --check` succeeds
-
-Diagnostics and packaging reports are saved under:
-
-```text
-outputs\reports
-```
 
 ## Limitations
 

@@ -1,4 +1,4 @@
-matlab_mouse_index,python_index,session_file,session_id,lag,block_a_pv_correlation,block_b_pv_correlation,mean_block_pv_correlation
+session_order_index,python_index,session_file,session_id,lag,block_a_pv_correlation,block_b_pv_correlation,mean_block_pv_correlation
 29,28,session_767871931.mat,767871931,1,0.6152905270030982,0.6980992333832293,0.6566948801931638
 29,28,session_767871931.mat,767871931,2,0.5963610383417522,0.6744261334775191,0.6353935859096357
 29,28,session_767871931.mat,767871931,3,0.5638438954624582,0.6574498638539403,0.6106468796581992

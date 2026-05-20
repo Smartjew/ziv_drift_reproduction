@@ -7,7 +7,6 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.io import loadmat
-from scipy.stats import friedmanchisquare
 
 
 LOGGER = logging.getLogger(__name__)
@@ -33,7 +32,6 @@ FIGURE_PATH = PROJECT_ROOT / "outputs" / "figures" / "figure2h_pm_only_ensemble_
 VALID_MICE_CSV = PROJECT_ROOT / "outputs" / "tables" / "figure2h_pm_only_valid_mice.csv"
 MOUSE_BY_LAG_CSV = PROJECT_ROOT / "outputs" / "tables" / "figure2h_pm_only_mouse_by_lag.csv"
 SUMMARY_BY_LAG_CSV = PROJECT_ROOT / "outputs" / "tables" / "figure2h_pm_only_summary_by_lag.csv"
-DIAGNOSTICS_PATH = PROJECT_ROOT / "outputs" / "reports" / "figure2h_pm_only_diagnostics.txt"
 
 PM_FILL_COLOR = np.array([0.9, 0.6, 0.2])
 PM_LINE_COLOR = np.array([0.7, 0.4, 0.0])
@@ -84,12 +82,12 @@ def load_session(path: Path) -> dict:
 def extract_pm_activity(mat_data: dict) -> np.ndarray | None:
     informative = mat_data["informative_rater_mat"]
     if not isinstance(informative, np.ndarray):
-        raise TypeError(f"Expected informative_rater_mat ndarray, got {type(informative).__name__}")
+        raise TypeError(f"informative_rater_mat should be ndarray, got {type(informative).__name__}")
     activity = unwrap_scalar_object(informative[NAT_MOVIE_INDEX, AREA_INDEX])
     if not isinstance(activity, np.ndarray) or activity.size == 0:
         return None
     if activity.ndim != 3:
-        raise ValueError(f"Expected activity ndim 3, got shape {activity.shape}")
+        raise ValueError(f"Activity should be 3D, got shape {activity.shape}")
     return activity
 
 
@@ -103,7 +101,7 @@ def movie1_repeat_count(mat_data: dict) -> int:
 def pm_unit_count(mat_data: dict) -> int:
     cell_num = np.asarray(mat_data["cell_num"])
     if cell_num.ndim != 2 or cell_num.shape[1] <= AREA_INDEX:
-        raise ValueError(f"Unexpected cell_num shape: {cell_num.shape}")
+        raise ValueError(f"cell_num shape mismatch: {cell_num.shape}")
     return int(cell_num[0, AREA_INDEX])
 
 
@@ -111,7 +109,7 @@ def valid_activity_shape(activity: np.ndarray, n_units: int) -> bool:
     return activity.shape == (n_units, N_REPEATS * FRAMES_PER_REPEAT, N_BLOCKS)
 
 
-def load_valid_mice() -> tuple[list[dict], str, int | None]:
+def load_valid_mice() -> list[dict]:
     if FIGURE2E_VALID_MICE_CSV.exists():
         source_rows = read_csv(FIGURE2E_VALID_MICE_CSV)
         valid_rows = []
@@ -126,10 +124,9 @@ def load_valid_mice() -> tuple[list[dict], str, int | None]:
                     "activity_shape": row["activity_shape"],
                     "included": True,
                     "exclusion_reason": "",
-                    "source_valid_mice_table": str(FIGURE2E_VALID_MICE_CSV),
                 }
             )
-        return valid_rows, str(FIGURE2E_VALID_MICE_CSV), None
+        return valid_rows
 
     rows = []
     mat_files = sorted(NEUROPIXELS_DIR.glob("*.mat"))
@@ -161,11 +158,10 @@ def load_valid_mice() -> tuple[list[dict], str, int | None]:
                 "activity_shape": activity_shape,
                 "included": included,
                 "exclusion_reason": reason,
-                "source_valid_mice_table": "reconstructed",
             }
         )
 
-    return [row for row in rows if row["included"] is True], "reconstructed", len(mat_files)
+    return [row for row in rows if row["included"] is True]
 
 
 def build_binned_blocks(activity: np.ndarray) -> np.ndarray:
@@ -199,7 +195,7 @@ def pearson_corr_columns(x: np.ndarray) -> np.ndarray:
 
 def collapse_rate_matrix_by_lag(matrix: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     if matrix.shape != (N_REPEATS, N_REPEATS):
-        raise ValueError(f"Expected ensemble-rate matrix {(N_REPEATS, N_REPEATS)}, got {matrix.shape}")
+        raise ValueError(f"Ensemble-rate matrix shape mismatch: {matrix.shape}")
     lag_means = np.empty(N_REPEATS - 1, dtype=np.float64)
     n_pairs = np.empty(N_REPEATS - 1, dtype=np.int64)
     for lag in range(1, N_REPEATS):
@@ -217,7 +213,7 @@ def compute_mouse_ensemble_rate(activity: np.ndarray) -> tuple[np.ndarray, np.nd
     for block_index in range(N_BLOCKS):
         ensemble_rate_by_repeat = np.nanmean(binned[block_index], axis=1)
         if ensemble_rate_by_repeat.shape != (activity.shape[0], N_REPEATS):
-            raise ValueError(f"Unexpected ensemble-rate shape: {ensemble_rate_by_repeat.shape}")
+            raise ValueError(f"Ensemble-rate shape mismatch: {ensemble_rate_by_repeat.shape}")
         rate_matrix = pearson_corr_columns(ensemble_rate_by_repeat)
         lag_means, n_pairs = collapse_rate_matrix_by_lag(rate_matrix)
         block_lag_means.append(lag_means)
@@ -278,30 +274,13 @@ def summarize_by_lag(mouse_rows: list[dict]) -> list[dict]:
     return summary_rows
 
 
-def friedman_diagnostic(valid_rows: list[dict], mouse_rows: list[dict]) -> tuple[float, float]:
-    matrix = []
-    for valid in valid_rows:
-        values = [
-            float(row["mouse_mean"])
-            for row in mouse_rows
-            if row["filename"] == valid["filename"]
-        ]
-        if len(values) == N_REPEATS - 1 and np.all(np.isfinite(values)):
-            matrix.append(values)
-    data = np.asarray(matrix, dtype=np.float64)
-    if data.shape[0] < 2 or data.shape[1] != N_REPEATS - 1:
-        return float("nan"), float("nan")
-    result = friedmanchisquare(*[data[:, idx] for idx in range(data.shape[1])])
-    return float(result.statistic), float(result.pvalue)
-
-
 def validate_outputs(valid_rows: list[dict], mouse_rows: list[dict], summary_rows: list[dict]) -> None:
     if not valid_rows:
         raise AssertionError("valid mice count is zero")
-    expected_lags = list(range(1, N_REPEATS))
+    required_lags = list(range(1, N_REPEATS))
     mouse_lags = sorted({int(row["lag"]) for row in mouse_rows})
     summary_lags = [int(row["lag"]) for row in summary_rows]
-    if mouse_lags != expected_lags or summary_lags != expected_lags:
+    if mouse_lags != required_lags or summary_lags != required_lags:
         raise AssertionError(f"Lags are not exactly 1..29: mouse={mouse_lags}, summary={summary_lags}")
     if len(mouse_rows) != len(valid_rows) * (N_REPEATS - 1):
         raise AssertionError(f"mouse-by-lag row count mismatch: {len(mouse_rows)}")
@@ -309,19 +288,19 @@ def validate_outputs(valid_rows: list[dict], mouse_rows: list[dict], summary_row
         raise AssertionError(f"summary row count mismatch: {len(summary_rows)}")
     for row in mouse_rows:
         lag = int(row["lag"])
-        expected_pairs = N_REPEATS - lag
+        pair_count = N_REPEATS - lag
         if lag == 0:
             raise AssertionError("lag 0 appears in mouse-by-lag table")
-        if int(row["blockA_n_pairs"]) != expected_pairs or int(row["blockB_n_pairs"]) != expected_pairs:
+        if int(row["blockA_n_pairs"]) != pair_count or int(row["blockB_n_pairs"]) != pair_count:
             raise AssertionError(f"n_pairs mismatch at lag {lag} for {row['filename']}")
     if FIGURE_PATH.name != "figure2h_pm_only_ensemble_rate_across_mice.png":
         raise AssertionError(f"Wrong figure path: {FIGURE_PATH}")
-    expected_csvs = {
+    output_csv_names = {
         VALID_MICE_CSV.name,
         MOUSE_BY_LAG_CSV.name,
         SUMMARY_BY_LAG_CSV.name,
     }
-    if expected_csvs != {
+    if output_csv_names != {
         "figure2h_pm_only_valid_mice.csv",
         "figure2h_pm_only_mouse_by_lag.csv",
         "figure2h_pm_only_summary_by_lag.csv",
@@ -349,71 +328,12 @@ def save_figure(summary_rows: list[dict]) -> None:
     plt.close(fig)
 
 
-def write_diagnostics(
-    valid_rows: list[dict],
-    mouse_rows: list[dict],
-    summary_rows: list[dict],
-    valid_source: str,
-    inspected_count: int | None,
-    friedman_statistic: float,
-    friedman_pvalue: float,
-) -> None:
-    summary = {int(row["lag"]): row for row in summary_rows}
-    lag1 = float(summary[1]["ensemble_rate_correlation_mean"])
-    lag29 = float(summary[29]["ensemble_rate_correlation_mean"])
-    n_mice_by_lag = [int(row["n_mice"]) for row in summary_rows]
-    included_sessions = ", ".join(row["session_id"] for row in valid_rows)
-
-    lines = [
-        "Figure 2H PM-only Ensemble rate correlation diagnostics",
-        "",
-        "confirmation = This is not Figure 2E PV correlation; repeat activity is collapsed to one ensemble-rate vector per repeat before corr().",
-        f"source_neuropixels_dir = {NEUROPIXELS_DIR}",
-        f"valid_mice_source_table = {valid_source}",
-        f"total_neuropixels_mat_files_inspected = {inspected_count if inspected_count is not None else 'not_reconstructed_used_figure2e_valid_mice_table'}",
-        f"valid_mice_count = {len(valid_rows)}",
-        f"included_session_ids = {included_sessions}",
-        "",
-        "inclusion_criteria = Natural Movie 1 Functional Connectivity sessions, PM/VISpm activity shape (n_units, 27000, 2), n_units >= 15",
-        f"activity_shape_requirement = (n_units, {N_REPEATS * FRAMES_PER_REPEAT}, {N_BLOCKS})",
-        f"n_units_threshold = {CELL_CUTOFF}",
-        "lags_used = 1..29",
-        "lag0_included = False",
-        "self_correlations_included = False",
-        f"mouse_by_lag_row_count = {len(mouse_rows)}",
-        f"summary_row_count = {len(summary_rows)}",
-        f"min_n_mice_across_lags = {min(n_mice_by_lag)}",
-        f"max_n_mice_across_lags = {max(n_mice_by_lag)}",
-        "",
-        *[
-            (
-                f"lag{lag} mean = {float(summary[lag]['ensemble_rate_correlation_mean'])}, "
-                f"sem = {float(summary[lag]['ensemble_rate_correlation_sem'])}, "
-                f"n_mice = {int(summary[lag]['n_mice'])}"
-            )
-            for lag in (1, 5, 10, 20, 29)
-        ],
-        f"lag1_minus_lag29 = {lag1 - lag29}",
-        f"lag1_greater_than_lag29 = {lag1 > lag29}",
-        f"friedman_statistic = {friedman_statistic}",
-        f"friedman_pvalue = {friedman_pvalue}",
-        "",
-        f"figure_path = {FIGURE_PATH}",
-        f"valid_mice_csv = {VALID_MICE_CSV}",
-        f"mouse_by_lag_csv = {MOUSE_BY_LAG_CSV}",
-        f"summary_by_lag_csv = {SUMMARY_BY_LAG_CSV}",
-    ]
-    DIAGNOSTICS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    DIAGNOSTICS_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
-
-
 def main() -> None:
     configure_logging()
-    valid_rows, valid_source, inspected_count = load_valid_mice()
+    valid_rows = load_valid_mice()
     mouse_rows = compute_mouse_rows(valid_rows)
     summary_rows = summarize_by_lag(mouse_rows)
     validate_outputs(valid_rows, mouse_rows, summary_rows)
-    friedman_statistic, friedman_pvalue = friedman_diagnostic(valid_rows, mouse_rows)
 
     valid_fieldnames = [
         "filename",
@@ -422,28 +342,17 @@ def main() -> None:
         "activity_shape",
         "included",
         "exclusion_reason",
-        "source_valid_mice_table",
     ]
     write_csv(VALID_MICE_CSV, valid_rows, valid_fieldnames)
     write_csv(MOUSE_BY_LAG_CSV, mouse_rows)
     write_csv(SUMMARY_BY_LAG_CSV, summary_rows)
     save_figure(summary_rows)
-    write_diagnostics(
-        valid_rows,
-        mouse_rows,
-        summary_rows,
-        valid_source,
-        inspected_count,
-        friedman_statistic,
-        friedman_pvalue,
-    )
 
     LOGGER.info("valid_mice_count=%s", len(valid_rows))
     LOGGER.info("figure=%s", FIGURE_PATH)
     LOGGER.info("valid_mice_csv=%s", VALID_MICE_CSV)
     LOGGER.info("mouse_by_lag_csv=%s", MOUSE_BY_LAG_CSV)
     LOGGER.info("summary_by_lag_csv=%s", SUMMARY_BY_LAG_CSV)
-    LOGGER.info("diagnostics=%s", DIAGNOSTICS_PATH)
 
 
 if __name__ == "__main__":

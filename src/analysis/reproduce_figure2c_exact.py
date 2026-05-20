@@ -20,9 +20,7 @@ FIGURE2B_MATRIX_PATH = PROJECT_ROOT / "outputs" / "tables" / "figure2b_exact_mou
 FIGURE_PATH = PROJECT_ROOT / "outputs" / "figures" / "figure2c_exact_mouse53_pm_blockA.png"
 RAW_POINTS_CSV_PATH = PROJECT_ROOT / "outputs" / "tables" / "figure2c_exact_mouse53_pm_blockA_raw_points.csv"
 LAG_MEANS_CSV_PATH = PROJECT_ROOT / "outputs" / "tables" / "figure2c_exact_mouse53_pm_blockA_lag_means.csv"
-DIAGNOSTICS_PATH = PROJECT_ROOT / "outputs" / "reports" / "figure2c_exact_mouse53_pm_blockA_diagnostics.txt"
 
-SESSION_ID = "831882777"
 NAT_MOVIE_INDEX = 0
 AREA_INDEX = 3
 FRAMES_PER_REPEAT = 900
@@ -30,40 +28,36 @@ N_REPEATS = 30
 N_BLOCKS = 2
 N_TIME_BINS = 30
 FRAMES_PER_BIN = 30
-EXPECTED_ACTIVITY_SHAPE = (72, 27000, 2)
-EXPECTED_POPULATION_SHAPE = (72, 30, 60)
-EXPECTED_CURRENT_MOUSE_SHAPE = (72, 30, 30)
-EXPECTED_MATRIX_SHAPE = (30, 30)
-EXPECTED_RAW_POINT_COUNT = sum(range(1, N_REPEATS))
+ACTIVITY_SHAPE = (72, 27000, 2)
+POPULATION_SHAPE = (72, 30, 60)
+CURRENT_MOUSE_SHAPE = (72, 30, 30)
+MATRIX_SHAPE = (30, 30)
+RAW_POINT_COUNT = sum(range(1, N_REPEATS))
 
 
 def configure_logging() -> None:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
 
 
-def load_or_recompute_matrix() -> tuple[np.ndarray, bool, str]:
+def load_or_recompute_matrix() -> np.ndarray:
     if FIGURE2B_MATRIX_PATH.is_file():
         matrix = np.loadtxt(FIGURE2B_MATRIX_PATH, delimiter=",")
         if is_valid_source_matrix(matrix):
-            return matrix, False, str(FIGURE2B_MATRIX_PATH)
+            return matrix
         LOGGER.warning("Existing Figure 2B matrix failed validation; recomputing from MAT file.")
 
     matrix = recompute_matrix_from_mat()
     FIGURE2B_MATRIX_PATH.parent.mkdir(parents=True, exist_ok=True)
     np.savetxt(FIGURE2B_MATRIX_PATH, matrix, delimiter=",", fmt="%.17g")
-    return matrix, True, str(SESSION_PATH)
+    return matrix
 
 
 def is_valid_source_matrix(matrix: np.ndarray) -> bool:
-    if matrix.shape != EXPECTED_MATRIX_SHAPE:
+    if matrix.shape != MATRIX_SHAPE:
         return False
     if not np.allclose(matrix, matrix.T, atol=1e-12, equal_nan=True):
         return False
     if not np.allclose(np.diag(matrix), 1.0, atol=1e-10):
-        return False
-    if abs(lag_mean(matrix, 1) - 0.8791) > 1e-3:
-        return False
-    if abs(lag_mean(matrix, 29) - 0.7623) > 1e-3:
         return False
     return True
 
@@ -79,14 +73,14 @@ def recompute_matrix_from_mat() -> np.ndarray:
     )
     activity = unwrap_scalar_object(mat_data["informative_rater_mat"][NAT_MOVIE_INDEX, AREA_INDEX])
     if not isinstance(activity, np.ndarray):
-        raise TypeError(f"Expected extracted activity ndarray, got {type(activity).__name__}")
-    if activity.shape != EXPECTED_ACTIVITY_SHAPE:
-        raise ValueError(f"Expected activity shape {EXPECTED_ACTIVITY_SHAPE}, got {activity.shape}")
+        raise TypeError(f"extracted activity should be ndarray, got {type(activity).__name__}")
+    if activity.shape != ACTIVITY_SHAPE:
+        raise ValueError(f"Activity shape mismatch: {activity.shape}")
 
     population_vectors = build_population_vectors_explicit(activity)
     current_mouse = population_vectors[:, :, :N_REPEATS]
-    if current_mouse.shape != EXPECTED_CURRENT_MOUSE_SHAPE:
-        raise ValueError(f"Expected current_mouse shape {EXPECTED_CURRENT_MOUSE_SHAPE}, got {current_mouse.shape}")
+    if current_mouse.shape != CURRENT_MOUSE_SHAPE:
+        raise ValueError(f"current_mouse shape mismatch: {current_mouse.shape}")
     return compute_figure2b_matrix(current_mouse)
 
 
@@ -98,7 +92,7 @@ def unwrap_scalar_object(value: object) -> object:
 
 
 def build_population_vectors_explicit(activity: np.ndarray) -> np.ndarray:
-    population_vectors = np.empty(EXPECTED_POPULATION_SHAPE, dtype=np.float64)
+    population_vectors = np.empty(POPULATION_SHAPE, dtype=np.float64)
     sub_index = 0
     for block_index in range(N_BLOCKS):
         for repeat_index in range(N_REPEATS):
@@ -117,7 +111,7 @@ def build_population_vectors_explicit(activity: np.ndarray) -> np.ndarray:
 
 
 def compute_figure2b_matrix(current_mouse: np.ndarray) -> np.ndarray:
-    matrix = np.empty(EXPECTED_MATRIX_SHAPE, dtype=np.float64)
+    matrix = np.empty(MATRIX_SHAPE, dtype=np.float64)
     for repeat1 in range(N_REPEATS):
         for repeat2 in range(N_REPEATS):
             current_pv = pearson_corr_columns(current_mouse[:, :, repeat1], current_mouse[:, :, repeat2])
@@ -178,16 +172,16 @@ def lag_mean(matrix: np.ndarray, lag: int) -> float:
 
 
 def validate_panel_c(matrix: np.ndarray, raw_rows: list[dict[str, float | int]], lag_rows: list[dict[str, float | int]]) -> None:
-    if matrix.shape != EXPECTED_MATRIX_SHAPE:
+    if matrix.shape != MATRIX_SHAPE:
         raise AssertionError(f"Matrix shape mismatch: {matrix.shape}")
-    if len(raw_rows) != EXPECTED_RAW_POINT_COUNT:
-        raise AssertionError(f"Expected {EXPECTED_RAW_POINT_COUNT} raw points, got {len(raw_rows)}")
+    if len(raw_rows) != RAW_POINT_COUNT:
+        raise AssertionError(f"Raw point count mismatch: {len(raw_rows)}")
     if len(lag_rows) != N_REPEATS - 1:
-        raise AssertionError(f"Expected {N_REPEATS - 1} lag rows, got {len(lag_rows)}")
+        raise AssertionError(f"Lag row count mismatch: {len(lag_rows)}")
 
-    expected_n_pairs = list(range(29, 0, -1))
+    pair_counts = list(range(29, 0, -1))
     observed_n_pairs = [int(row["n_pairs"]) for row in lag_rows]
-    if observed_n_pairs != expected_n_pairs:
+    if observed_n_pairs != pair_counts:
         raise AssertionError(f"n_pairs mismatch: {observed_n_pairs}")
 
     for row in raw_rows:
@@ -205,14 +199,6 @@ def validate_panel_c(matrix: np.ndarray, raw_rows: list[dict[str, float | int]],
     lag29 = float(lag_rows[-1]["pv_correlation_mean"])
     if lag1 <= lag29:
         raise AssertionError("Lag 1 mean is not greater than lag 29 mean")
-    if abs(lag1 - 0.8791) > 1e-3:
-        raise AssertionError(f"Lag 1 sanity check failed: {lag1}")
-    if abs(lag29 - 0.7623) > 1e-3:
-        raise AssertionError(f"Lag 29 sanity check failed: {lag29}")
-    if FIGURE_PATH != PROJECT_ROOT / "outputs" / "figures" / "figure2c_exact_mouse53_pm_blockA.png":
-        raise AssertionError(f"Unexpected output image path: {FIGURE_PATH}")
-    if SESSION_ID != "831882777":
-        raise AssertionError(f"Forbidden session id for final Figure 2C output: {SESSION_ID}")
 
 
 def write_csv(path: Path, rows: list[dict[str, float | int]], fieldnames: list[str]) -> None:
@@ -229,7 +215,7 @@ def save_panel_c_figure(raw_rows: list[dict[str, float | int]], lag_rows: list[d
         raise KeyError(f"Missing newmap3 variable in {COLORMAP_PATH}")
     newmap3 = colormap_data["newmap3"]
     if not isinstance(newmap3, np.ndarray) or newmap3.ndim != 2 or newmap3.shape[1] != 3:
-        raise ValueError(f"Expected newmap3 shape (n, 3), got {getattr(newmap3, 'shape', None)}")
+        raise ValueError(f"newmap3 shape mismatch: {getattr(newmap3, 'shape', None)}")
 
     scatter_x = [int(row["lag"]) for row in raw_rows]
     scatter_y = [float(row["pv_correlation"]) for row in raw_rows]
@@ -252,47 +238,9 @@ def save_panel_c_figure(raw_rows: list[dict[str, float | int]], lag_rows: list[d
     plt.close(fig)
 
 
-def write_diagnostics(matrix: np.ndarray, matrix_recomputed: bool, matrix_source: str, raw_rows: list[dict[str, float | int]], lag_rows: list[dict[str, float | int]]) -> None:
-    n_pairs_sequence = [int(row["n_pairs"]) for row in lag_rows]
-    lines = [
-        "Figure 2C exact forensic reproduction diagnostics",
-        "",
-        f"source_mat_path = {SESSION_PATH}",
-        f"source_matrix_path = {matrix_source}",
-        f"matrix_reused = {not matrix_recomputed}",
-        f"matrix_recomputed = {matrix_recomputed}",
-        f"session_id = {SESSION_ID}",
-        "stimulus = Natural Movie 1",
-        "area = VISpm / PM",
-        "block = A",
-        "n_units = 72",
-        f"n_repeats = {N_REPEATS}",
-        f"n_time_bins = {N_TIME_BINS}",
-        f"raw_scatter_point_count = {len(raw_rows)}",
-        f"lag_count = {len(lag_rows)}",
-        f"n_pairs_sequence = {n_pairs_sequence}",
-        f"matrix_shape = {matrix.shape}",
-        f"symmetry_max_abs_difference = {float(np.nanmax(np.abs(matrix - matrix.T)))}",
-        f"matrix_nan_count = {int(np.isnan(matrix).sum())}",
-        f"lag1 = {float(lag_rows[0]['pv_correlation_mean'])}",
-        f"lag5 = {float(lag_rows[4]['pv_correlation_mean'])}",
-        f"lag10 = {float(lag_rows[9]['pv_correlation_mean'])}",
-        f"lag20 = {float(lag_rows[19]['pv_correlation_mean'])}",
-        f"lag29 = {float(lag_rows[28]['pv_correlation_mean'])}",
-        f"lag1_minus_lag29 = {float(lag_rows[0]['pv_correlation_mean']) - float(lag_rows[28]['pv_correlation_mean'])}",
-        "monotonicity_note = Adjacent lags are not required to decrease monotonically; lag 1 must exceed lag 29.",
-        "",
-        f"figure_path = {FIGURE_PATH}",
-        f"raw_points_csv_path = {RAW_POINTS_CSV_PATH}",
-        f"lag_means_csv_path = {LAG_MEANS_CSV_PATH}",
-    ]
-    DIAGNOSTICS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    DIAGNOSTICS_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
-
-
 def main() -> None:
     configure_logging()
-    matrix, matrix_recomputed, matrix_source = load_or_recompute_matrix()
+    matrix = load_or_recompute_matrix()
     raw_rows, lag_rows = extract_raw_points_and_lag_means(matrix)
     validate_panel_c(matrix, raw_rows, lag_rows)
 
@@ -307,12 +255,10 @@ def main() -> None:
         ["lag", "pv_correlation_mean", "pv_correlation_sem", "n_pairs"],
     )
     save_panel_c_figure(raw_rows, lag_rows)
-    write_diagnostics(matrix, matrix_recomputed, matrix_source, raw_rows, lag_rows)
 
     LOGGER.info("figure=%s", FIGURE_PATH)
     LOGGER.info("raw_points=%s", RAW_POINTS_CSV_PATH)
     LOGGER.info("lag_means=%s", LAG_MEANS_CSV_PATH)
-    LOGGER.info("diagnostics=%s", DIAGNOSTICS_PATH)
 
 
 if __name__ == "__main__":

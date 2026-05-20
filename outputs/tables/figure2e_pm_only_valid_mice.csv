@@ -1,4 +1,4 @@
-matlab_mouse_index,python_index,session_file,session_id,area,movie1_repeats_per_block,pm_cell_count,activity_shape
+session_order_index,python_index,session_file,session_id,area,movie1_repeats_per_block,pm_cell_count,activity_shape
 29,28,session_767871931.mat,767871931,VISpm / PM,30,64,"(64, 27000, 2)"
 31,30,session_771160300.mat,771160300,VISpm / PM,30,58,"(58, 27000, 2)"
 32,31,session_771990200.mat,771990200,VISpm / PM,30,37,"(37, 27000, 2)"

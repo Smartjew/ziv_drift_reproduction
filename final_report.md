@@ -14,9 +14,9 @@ This project focused on the short-timescale Neuropixels part of the analysis. I 
 
 ## Data and scope
 
-The data used here are processed Neuropixels files from the official Ziv lab `visual_drift` repository. I did not rebuild the data from raw AllenSDK NWB files. The main data variable used from the MATLAB files was `informative_rater_mat`, which contains processed activity matrices for natural movie stimuli and brain areas.
+The data used here are processed Neuropixels files from the official Ziv lab `visual_drift` repository. I did not rebuild the data from raw AllenSDK NWB files. The main processed data variable was `informative_rater_mat`, which contains activity matrices for natural movie stimuli and brain areas.
 
-The stimulus was Natural Movie 1. Each repeat lasted 30 seconds. The brain area was PM / VISpm. For Figure 2B and Figure 2C, I used the representative mouse/session used in the original example: `session_831882777.mat`, corresponding to MATLAB mouse index 53, Natural Movie 1, PM / VISpm, and block A. This session had 72 PM units for the selected activity array.
+The stimulus was Natural Movie 1. Each repeat lasted 30 seconds. The brain area was PM / VISpm. For Figure 2B and Figure 2C, I used the representative example session: `session_831882777.mat`, mouse 53, Natural Movie 1, PM / VISpm, and block A. This session had 72 PM units for the selected activity array.
 
 For the across-mice analyses, I included Functional Connectivity sessions with 30 repeats per block and at least 15 PM units. This gave 16 valid mice for Figure 2E PM-only and 16 valid mice for Figure 2H PM-only. These are scoped PM-only reproductions. The original paper shows multiple visual areas, but this project intentionally limited the across-mice analysis to PM / VISpm to keep the workflow smaller and easier to inspect.
 
@@ -48,7 +48,7 @@ Pearson correlation was then computed between repeat-level activity-rate vectors
 
 The project includes several checks. `main.py` performs a lightweight check that the final scripts and artifacts exist. The pytest suite validates that the final figures and tables exist, Figure 2C has 435 raw repeat-pair points, the lag structure is correct, valid mice match between Figure 2E and Figure 2H, and old legacy outputs are absent from the final output folders.
 
-Each final analysis also saved a diagnostic report under `outputs/reports`. The representative mouse calculations include regression checks against the Figure 2C lag values for `session_831882777.mat`. These checks helped prevent accidental use of the wrong mouse, wrong block, or wrong correlation definition.
+The representative mouse calculations include consistency checks for matrix shape, lag structure, and correlation direction. These checks helped prevent accidental use of the wrong block or wrong correlation definition.
 
 ## Results
 
@@ -66,14 +66,14 @@ The diagonal of the plotted heatmap was adjusted only for visualization, followi
 
 Figure 2C collapses the Figure 2B matrix by elapsed repeat lag. Each gray point is one pair of movie repeats from the positive diagonals of the matrix. The line shows the mean PV correlation for each lag.
 
-The exact lag means from the reproduced Figure 2C table were:
+The lag means from the reproduced Figure 2C table were:
 
-- lag 1: 0.87907
-- lag 5: 0.86703
-- lag 10: 0.85592
-- lag 20: 0.82808
-- lag 29: 0.76227
-- lag 1 minus lag 29: 0.11679
+- lag 1: 0.879
+- lag 5: 0.867
+- lag 10: 0.856
+- lag 20: 0.828
+- lag 29: 0.762
+- lag 1 minus lag 29: 0.117
 
 The curve decreases from lag 1 to lag 29. This reproduces the single-animal example pattern: repeats that are close together in time have more similar population responses than repeats that are farther apart.
 
@@ -83,16 +83,16 @@ The curve decreases from lag 1 to lag 29. This reproduces the single-animal exam
 
 Figure 2E PM-only extends the Figure 2C PV correlation logic across valid PM mice. The analysis included 16 valid mice. For each mouse, block A and block B were analyzed separately and then averaged. The final curve shows mean +/- SEM across mice.
 
-The exact PM-only values were:
+The PM-only values were:
 
-- lag 1: 0.77763 +/- 0.021
-- lag 5: 0.7555 +/- 0.023
-- lag 10: 0.74678 +/- 0.022
-- lag 20: 0.73273 +/- 0.021
-- lag 29: 0.70756 +/- 0.0211
-- lag 1 minus lag 29: 0.07
+- lag 1: 0.778 +/- 0.021
+- lag 5: 0.756 +/- 0.023
+- lag 10: 0.747 +/- 0.022
+- lag 20: 0.733 +/- 0.021
+- lag 29: 0.708 +/- 0.021
+- lag 1 minus lag 29: 0.070
 
-The diagnostic Friedman p-value was 2.049e-37. This PM-only result supports short-timescale representational drift in area PM. It should be interpreted as a scoped across-mice reproduction, not as a reproduction of the full all-area Figure 2E panel from the paper.
+This PM-only result supports short-timescale representational drift in area PM. It should be interpreted as a scoped across-mice reproduction, not as a reproduction of the full all-area Figure 2E panel from the paper.
 
 ### 6.4 Figure 2H PM-only - Ensemble rate correlation across mice
 
@@ -100,26 +100,26 @@ The diagnostic Friedman p-value was 2.049e-37. This PM-only result supports shor
 
 Figure 2H PM-only asks whether overall activity-rate patterns also become less similar over elapsed repeats. This analysis included the same 16 valid PM mice as Figure 2E. Each repeat was reduced to a vector of mean activity rate per unit, and repeat vectors were correlated.
 
-The exact PM-only ensemble rate values were:
+The PM-only ensemble rate values were:
 
-- lag 1: 0.96701
-- lag 5: 0.9449 
-- lag 10: 0.93819
-- lag 20: 0.92097
-- lag 29: 0.89748 +/- 0.013
-- lag 1 minus lag 29: 0.06953
+- lag 1: 0.967 +/- 0.005
+- lag 5: 0.945 +/- 0.007
+- lag 10: 0.938 +/- 0.007
+- lag 20: 0.921 +/- 0.011
+- lag 29: 0.897 +/- 0.013
+- lag 1 minus lag 29: 0.070
 
-The diagnostic Friedman statistic was 293.03965, with p-value 5.88e-46. The curve decreases over elapsed repeats, suggesting that activity-rate changes contribute to the PV drift. However, this does not fully separate rate changes from tuning changes, because Figure 2I tuning-curve correlation was not reproduced in this project.
+The curve decreases over elapsed repeats, suggesting that activity-rate changes contribute to the PV drift. However, this does not fully separate rate changes from tuning changes, because Figure 2I tuning-curve correlation was not reproduced in this project.
 
 ## Comparison with the original paper
 
-The Figure 2B and Figure 2C reproductions follow the same computational definition as the original figures for the representative PM mouse. The selected session, area, stimulus, block, and repeat structure were matched to the original example. The PV correlation was computed by correlating time-bin population vectors and averaging the matching-time-bin diagonal, rather than by averaging each repeat before correlation.
+The Figure 2B and Figure 2C reproductions follow the population-vector correlation procedure described in the paper for the representative PM mouse. The selected session, area, stimulus, block, and repeat structure were matched to the Figure 2 example conditions. The PV correlation was computed by correlating time-bin population vectors and averaging the matching-time-bin diagonal, rather than by averaging each repeat before correlation.
 
 For Figure 2E and Figure 2H, this project reproduced the same analysis logic but only for area PM . The original paper shows curves for multiple visual areas. This project focused on PM because it made the analysis feasible, easier to audit, and directly connected to the representative mouse example.
 
 The qualitative trend is consistent with the paper: correlations decline as the elapsed repeat interval increases. This appears in the single-mouse PV analysis, the PM-only across-mice PV analysis, and the PM-only ensemble rate analysis.
 
-Any numerical differences from the original full figure can come from the scoped PM-only analysis, the Python implementation, and the use of processed author data rather than rerunning the full MATLAB pipeline from raw AllenSDK data. For that reason, the results should be described as a focused reproduction of selected Figure 2 analyses, not as an exact full-paper reproduction.
+Any numerical differences from the original full figure can come from the scoped PM-only analysis, implementation details, and the use of processed author data rather than rebuilding the full dataset from raw AllenSDK data. For that reason, the results should be described as a focused reproduction of selected Figure 2 analyses, not as a full-paper reproduction.
 
 ## Limitations
 
@@ -133,7 +133,7 @@ Some final scripts are still relatively long, but they are isolated by figure an
 
 ## Conclusion
 
-This project successfully reproduced a focused subset of Figure 2 from Deitch, Rubin, and Ziv (2021). The results support the main short-timescale claim that repeated presentations of the same natural movie show declining neural similarity over elapsed repeats. The PM-only ensemble rate analysis suggests that changes in activity-rate patterns are one contributor to the observed drift. The project provides a reproducible Python implementation with final figures, tables, diagnostics, tests, and a README describing the final workflow.
+This project successfully reproduced a focused subset of Figure 2 from Deitch, Rubin, and Ziv (2021). The results support the main short-timescale claim that repeated presentations of the same natural movie show declining neural similarity over elapsed repeats. The PM-only ensemble rate analysis suggests that changes in activity-rate patterns are one contributor to the observed drift. The project provides a reproducible Python implementation with final figures, tables, tests, and a README describing the final workflow.
 
 ## References
 
