@@ -72,6 +72,14 @@ py -3.11 -m venv .venv
 
 If `py -3.11` is not available, use any Python executable that satisfies `requires-python = ">=3.11"` in `pyproject.toml`.
 
+The analysis scripts expect the original Ziv lab `visual_drift` repository location to be available through `ZIV_VISUAL_DRIFT_ROOT`. On Windows PowerShell, set it with:
+
+```powershell
+$env:ZIV_VISUAL_DRIFT_ROOT="C:\ziv_drift_workspace\visual_drift-main\visual_drift-main"
+```
+
+If the variable is not set, the scripts fall back to the local path used during development.
+
 Lightweight artifact check:
 
 ```powershell

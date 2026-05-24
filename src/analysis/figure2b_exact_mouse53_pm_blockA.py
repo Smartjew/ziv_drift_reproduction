@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -11,8 +12,13 @@ from scipy.io import loadmat
 
 LOGGER = logging.getLogger(__name__)
 
-PROJECT_ROOT = Path(r"C:\ziv_drift_workspace\ziv_drift_reproduction")
-SOURCE_ROOT = Path(r"C:\ziv_drift_workspace\visual_drift-main\visual_drift-main")
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+SOURCE_ROOT = Path(
+    os.environ.get(
+        "ZIV_VISUAL_DRIFT_ROOT",
+        r"C:\ziv_drift_workspace\visual_drift-main\visual_drift-main",
+    )
+)
 NEUROPIXELS_DIR = SOURCE_ROOT / "data" / "neuropixels"
 COLORMAP_PATH = SOURCE_ROOT / "data" / "colormaps" / "newmap3.mat"
 

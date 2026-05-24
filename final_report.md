@@ -129,7 +129,6 @@ Figure 2I tuning curve correlation was not reproduced. This means the project do
 
 Calcium imaging analyses were not reproduced. Long-timescale days/weeks analyses were also not reproduced. The project uses processed files from the authors' repository and does not reconstruct the dataset from raw AllenSDK NWB files.
 
-Some final scripts are still relatively long, but they are isolated by figure and include validation outputs. This makes the workflow easier to audit than the earlier mixed inspection script.
 
 ## Conclusion
 
